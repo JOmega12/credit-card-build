@@ -77,26 +77,27 @@ class Form extends React.Component {
             break;
       } 
    } 
-   handleBlur = (e) => this.handleValidations(e.target.name, e.target.value);
+
+   handleBlur = ({ target: { name, value}}) => this.handleValidations(name, value);
    
 
-   handleInputData = (e) => {
+   handleInputData = ({ target: { name, value}}) => {
 
-      if (e.target.name === 'card') {
-         let mask = e.target.value.split(' ').join('');
+      if (name === 'card') {
+         let mask = value.split(' ').join('');
          if (mask.length) {
             mask = mask.match(new RegExp('.{1,4}', 'g')).join(' ');
          this.setState((prevState) => ({ 
             cardData: {
             ...prevState.cardData, 
-            [e.target.name]: mask,
+            [name]: mask,
                },
             }));
          } else {
             this.setState((prevState) => ({ 
             cardData: {
             ...prevState.cardData, 
-            [e.target.name]: '',
+            [name]: '',
                   },
                }));
             }
@@ -104,13 +105,45 @@ class Form extends React.Component {
          this.setState((prevState) => ({ 
             cardData: {
             ...prevState.cardData, 
-            [e.target.name]: e.target.value
+            [name]: value
             },
          }));
       }
       //prevState gets the previous state of all the other properties and adds it with the new state
       //because youre bringing in all of th data within th object nd you dont want it to reset
    }
+
+   checkErrorBeforeSave = () => {
+
+      const { cardData } = this.state;
+      let errorValue = {};
+      let isError = false;
+      Object.keys(cardData).forEach((val) => {
+         if (!cardData[val].length) {
+            errorValue = { ...errorValue, [`${val}Error`]: 'Required'};
+            isError = true;
+         }
+      });
+      this.setState({ error: errorValue });
+      return isError;
+   }
+
+   handleAddCard = (e) => {
+      e.preventDefault();
+
+      const errorCheck = this.checkErrorBeforeSave();
+
+      if (!errorCheck) {
+         this.setState({
+            cardDate: INIT_CARD,
+            cardType: null,
+         });
+      }
+
+
+   }
+
+
    render() {
 
       const inputData = [
@@ -123,7 +156,7 @@ class Form extends React.Component {
       return (
          <div>
             <h1>Add New Card</h1>
-            <form>
+            <form onSubmit={this.handleAddCard}>
                {inputData.length ? inputData.map((item) =>(
                   <InputBase 
                   placeholder={item.label}
