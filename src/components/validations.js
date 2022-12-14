@@ -34,7 +34,7 @@ export const cardExpireValidation = (value) => {
             ? undefined
             : `Please enter a valid date`;
       } else {
-         return 'Invalid date formal';
+         return 'Invalid date format';
       }
    }
 };

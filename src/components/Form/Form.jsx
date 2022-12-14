@@ -18,7 +18,7 @@ const INIT_CARD = {
 class Form extends React.Component {
    constructor() {
       super();
-      
+
       this.state = {
          cardData: INIT_CARD,
          maxLength: OTHERCARDS.length,
@@ -124,7 +124,13 @@ class Form extends React.Component {
             isError = true;
          }
       });
-      this.setState({ error: errorValue });
+      // this.setState({ error: errorValue });
+      this.setState((prevState) => ({
+         error: {
+            ...prevState.error,
+            ...errorValue,
+         }
+      }));
       return isError;
    }
 
@@ -133,18 +139,27 @@ class Form extends React.Component {
 
       const errorCheck = this.checkErrorBeforeSave();
 
-      if (!errorCheck) {
+      if (!errorCheck && !Object.values(this.state.error).filter((val) => val !== undefined).length) {
          this.setState({
             cardDate: INIT_CARD,
             cardType: null,
          });
       }
 
+      /* if (!errorCheck) {
+         this.setState({
+            cardDate: INIT_CARD,
+            cardType: null,
+         });
+      } */
+
 
    }
 
 
    render() {
+
+      const { cardData, error, cardType, maxLength} = this.state;
 
       const inputData = [
          {label: 'Card Number', name: 'card', type: 'text', error:'cardError'},
@@ -161,20 +176,20 @@ class Form extends React.Component {
                   <InputBase 
                   placeholder={item.label}
                   type={item.type}
-                  value={this.state.cardData && this.state.cardData[item.name]}
+                  value={cardData && cardData[item.name]}
                   onChange={this.handleInputData}
                   autoComplete='off'
-                  maxLength={this.state.maxLength}
+                  maxLength={maxLength}
                   name={item.name}
                   onBlur={this.handleBlur}
-                  error={this.state.error}
-                  cardType={this.state.cardType}
+                  error={error}
+                  cardType={cardType}
                   isCard={item.name === 'card'}
                   errorM={
-                     (this.state.error
-                     && this.state.error[item.error]
-                     && this.state.error[item.error].length > 1)
-                     ? this.state.error[item.error]
+                     (error
+                     && error[item.error]
+                     && error[item.error].length > 1)
+                     ? error[item.error]
                      : null
                   }
                   />
